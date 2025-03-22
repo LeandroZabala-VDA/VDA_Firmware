@@ -1,0 +1,3 @@
+../Core/Src/filters.c:16:10:filtroMediaMovil	1
+../Core/Src/filters.c:43:8:iir_filter	6
+../Core/Src/filters.c:74:8:fir_filter	3

@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "state_machine.h"
+#include "filters.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +55,9 @@ UART_HandleTypeDef huart1;
 volatile uint8_t flag = 0; // Variable global para el flag
 uint8_t received_byte;     // Variable para almacenar el byte recibido
 uint32_t potentiometer_value;
+uint32_t filtered_potentiometer_value;
 uint16_t lectura_vda;
+double filtered_vda;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -305,7 +308,7 @@ static void MX_SDADC1_Init(void)
   hsdadc1.Init.IdleLowPowerMode = SDADC_LOWPOWER_NONE;
   hsdadc1.Init.FastConversionMode = SDADC_FAST_CONV_DISABLE;
   hsdadc1.Init.SlowClockMode = SDADC_SLOW_CLOCK_DISABLE;
-  hsdadc1.Init.ReferenceVoltage = SDADC_VREF_EXT;
+  hsdadc1.Init.ReferenceVoltage = SDADC_VREF_VREFINT2;
   hsdadc1.InjectedTrigger = SDADC_SOFTWARE_TRIGGER;
   if (HAL_SDADC_Init(&hsdadc1) != HAL_OK)
   {
@@ -330,7 +333,7 @@ static void MX_SDADC1_Init(void)
   /** Set parameters for SDADC configuration 0 Register
   */
   ConfParamStruct.InputMode = SDADC_INPUT_MODE_SE_ZERO_REFERENCE;
-  ConfParamStruct.Gain = SDADC_GAIN_1;
+  ConfParamStruct.Gain = SDADC_GAIN_1_2;
   ConfParamStruct.CommonMode = SDADC_COMMON_MODE_VSSA;
   ConfParamStruct.Offset = 0;
   if (HAL_SDADC_PrepareChannelConfig(&hsdadc1, SDADC_CONF_INDEX_0, &ConfParamStruct) != HAL_OK)
@@ -489,9 +492,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 10);
 		potentiometer_value = HAL_ADC_GetValue(&hadc1);
+		filtered_potentiometer_value = filtroMediaMovil((uint16_t)(potentiometer_value));
 		HAL_ADC_Stop(&hadc1);
 		HAL_DAC_SetValue(&hdac2, DAC_CHANNEL_1, DAC_ALIGN_12B_R, potentiometer_value);
 		lectura_vda = Read_ADC(&hsdadc1);
+		filtered_vda = iir_filter((double)lectura_vda, num_notch, den_notch, FILTER_ORDER, FILTER_ORDER, x_notch, y_notch);
 		uint16_t lectura_vda_10bit = lectura_vda >> 6; // Convertir a 10 bits
 	    // Crear trama de datos
 	    uint8_t frame[4];
