@@ -1,5 +1,6 @@
 "./Core/Src/filters.o"
 "./Core/Src/main.o"
+"./Core/Src/serial_handler.o"
 "./Core/Src/state_machine.o"
 "./Core/Src/stm32f3xx_hal_msp.o"
 "./Core/Src/stm32f3xx_it.o"

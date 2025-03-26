@@ -8,6 +8,7 @@
 #include "state_machine.h"
 #include "main.h"
 
+state_type current_state = STATE_STANDBY;
 
 int8_t state_machine(event_type event, state_type* state) {
 
@@ -18,6 +19,7 @@ int8_t state_machine(event_type event, state_type* state) {
 	            switch (event) {
 	                case EVENT_START:
 	                    *state = STATE_MANUAL_OPERATION;
+	                    blink_ACQ_LED = 1;
 	                    break;
 	                case EVENT_STOP:
 	                	ret = -1;
@@ -38,6 +40,7 @@ int8_t state_machine(event_type event, state_type* state) {
 	            switch (event) {
 	                case EVENT_STOP:
 	                    *state = STATE_STANDBY;
+	                    blink_ACQ_LED = 0;
 	                    break;
 	                case EVENT_AGC_ON:
 	                    *state = STATE_AUTOMATIC_OPERATION;
@@ -47,6 +50,8 @@ int8_t state_machine(event_type event, state_type* state) {
 	                	break;
 	                case EVENT_ACQ:
 	                    *state = STATE_ACQUIRING;
+	                    blink_ACQ_LED = 0;
+	                    HAL_GPIO_WritePin(ACQ_LED_GPIO_Port, ACQ_LED_Pin, 1);
 	                    break;
 	                case EVENT_START:
 	                	ret = -1;
@@ -58,9 +63,12 @@ int8_t state_machine(event_type event, state_type* state) {
 	            switch (event) {
 	                case EVENT_STOP:
 	                    *state = STATE_STANDBY;
+	                    blink_ACQ_LED = 0;
 	                    break;
 	                case EVENT_ACQ:
 	                    *state = STATE_ACQUIRING;
+	                    blink_ACQ_LED = 0;
+	                    HAL_GPIO_WritePin(ACQ_LED_GPIO_Port, ACQ_LED_Pin, 1);
 	                    break;
 	                case EVENT_START:
 	                	ret = -1;
@@ -78,6 +86,8 @@ int8_t state_machine(event_type event, state_type* state) {
 	            switch (event) {
 	                case EVENT_STOP:
 	                    *state = STATE_STANDBY;
+	                    blink_ACQ_LED = 0;
+	                    HAL_GPIO_WritePin(ACQ_LED_GPIO_Port, ACQ_LED_Pin, 0);
 	                    break;
 	                case EVENT_START:
 	                	ret = -1;

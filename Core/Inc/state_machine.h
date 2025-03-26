@@ -31,5 +31,5 @@ typedef enum {
 // Function declaration for event handling
 int8_t state_machine(event_type event, state_type* state);
 extern state_type current_state;
-
+extern uint8_t blink_ACQ_LED;
 #endif /* INC_STATE_MACHINE_H_ */

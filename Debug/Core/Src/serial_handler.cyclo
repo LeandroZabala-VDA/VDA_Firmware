@@ -1,0 +1,3 @@
+../Core/Src/serial_handler.c:17:13:process_command	6
+../Core/Src/serial_handler.c:31:6:SerialHandler_Init	1
+../Core/Src/serial_handler.c:37:6:HAL_UART_RxCpltCallback	5

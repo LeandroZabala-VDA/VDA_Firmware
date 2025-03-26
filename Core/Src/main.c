@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "state_machine.h"
 #include "filters.h"
+#include "serial_handler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,16 +49,17 @@ DAC_HandleTypeDef hdac2;
 SDADC_HandleTypeDef hsdadc1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim19;
 
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-volatile uint8_t flag = 0; // Variable global para el flag
-uint8_t received_byte;     // Variable para almacenar el byte recibido
+uint8_t flag = 0;
+uint8_t blink_ACQ_LED = 0;
 uint32_t potentiometer_value;
 uint32_t filtered_potentiometer_value;
 uint16_t lectura_vda;
-double filtered_vda;
+uint16_t filtered_vda;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +70,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC2_Init(void);
+static void MX_TIM19_Init(void);
 /* USER CODE BEGIN PFP */
 uint16_t Read_ADC(SDADC_HandleTypeDef *hsdadc);
 /* USER CODE END PFP */
@@ -111,10 +114,13 @@ int main(void)
   MX_TIM2_Init();
   MX_ADC1_Init();
   MX_DAC2_Init();
+  MX_TIM19_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim2);
-  HAL_UART_Receive_IT(&huart1, &received_byte,1);				// Configuro la Uart para que genere una interrupcion al llenarse el buffer rxBuff
+  HAL_TIM_Base_Start_IT(&htim19);
   HAL_DAC_Start(&hdac2, DAC_CHANNEL_1);
+  SerialHandler_Init(&huart1);
+  HAL_GPIO_WritePin(POWER_LED_GPIO_Port, POWER_LED_Pin, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -399,6 +405,51 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM19 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM19_Init(void)
+{
+
+  /* USER CODE BEGIN TIM19_Init 0 */
+
+  /* USER CODE END TIM19_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM19_Init 1 */
+
+  /* USER CODE END TIM19_Init 1 */
+  htim19.Instance = TIM19;
+  htim19.Init.Prescaler = 7200-1;
+  htim19.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim19.Init.Period = 10000-1;
+  htim19.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim19.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim19) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim19, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim19, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM19_Init 2 */
+
+  /* USER CODE END TIM19_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -474,40 +525,37 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART1) { // Cambia USART1 por el periférico que estés usando
-        if (received_byte == 0x7F) {
-            flag = 1; // Activa el flag si se recibe 0x7F
-        }
-        // Reinicia la recepción para continuar recibiendo datos
-        HAL_UART_Receive_IT(&huart1, &received_byte, 1);
-    }
-}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if(htim->Instance==TIM2)
-	{
+	if(htim->Instance==TIM2){
 		//HAL_GPIO_TogglePin(POWER_LED_GPIO_Port, POWER_LED_Pin);
 		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 10);
 		potentiometer_value = HAL_ADC_GetValue(&hadc1);
 		filtered_potentiometer_value = filtroMediaMovil((uint16_t)(potentiometer_value));
 		HAL_ADC_Stop(&hadc1);
-		HAL_DAC_SetValue(&hdac2, DAC_CHANNEL_1, DAC_ALIGN_12B_R, potentiometer_value);
+		HAL_DAC_SetValue(&hdac2, DAC_CHANNEL_1, DAC_ALIGN_12B_R, filtered_potentiometer_value);
 		lectura_vda = Read_ADC(&hsdadc1);
-		filtered_vda = iir_filter((double)lectura_vda, num_notch, den_notch, FILTER_ORDER, FILTER_ORDER, x_notch, y_notch);
-		uint16_t lectura_vda_10bit = lectura_vda >> 6; // Convertir a 10 bits
-	    // Crear trama de datos
+		filtered_vda = iir_filter(lectura_vda, num_notch, den_notch, FILTER_ORDER, FILTER_ORDER, x_notch, y_notch);
+
+		// Crear trama de datos
+
 	    uint8_t frame[4];
 	    frame[0] = 'A'; // Inicio de trama
-	    frame[1] = (uint8_t)(lectura_vda_10bit & 0xFF); // Byte menos significativo
-	    frame[2] = (uint8_t)((lectura_vda_10bit >> 8) & 0xFF); // Byte más significativo
+	    frame[1] = (uint8_t)(filtered_vda & 0xFF); // Byte menos significativo
+	    frame[2] = (uint8_t)((filtered_vda >> 8) & 0xFF); // Byte más significativo
 	    frame[3] = 'Z'; // Fin de trama
 
 	    // Enviar por UART
-	    HAL_UART_Transmit(&huart1, frame, sizeof(frame), HAL_MAX_DELAY);
+//	    HAL_UART_Transmit(&huart1, frame, sizeof(frame), HAL_MAX_DELAY);
+	}else if (htim->Instance==TIM19){
+		if (blink_ACQ_LED == 1){
+			HAL_GPIO_TogglePin(ACQ_LED_GPIO_Port, ACQ_LED_Pin);
+		}
+
 	}
+
 }
 
 
