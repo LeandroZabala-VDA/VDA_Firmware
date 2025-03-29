@@ -25,7 +25,9 @@ static void process_command(const char *command) {
     	state_machine(EVENT_AGC_OFF, &current_state);
     } else if (strcmp(command, "AACQZ") == 0) {
     	state_machine(EVENT_ACQ, &current_state);
-    }
+    }else if (strcmp(command, "ARESETZ") == 0) {
+        	state_machine(EVENT_RESTART, &current_state);
+        }
 }
 
 void SerialHandler_Init(UART_HandleTypeDef *huart) {

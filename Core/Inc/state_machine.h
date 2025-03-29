@@ -12,6 +12,7 @@
 
 // Event definitions
 typedef enum {
+	EVENT_RESTART,					   // Restart the state Machine
     EVENT_START,                       // Start event
     EVENT_STOP,                        // Stop event
     EVENT_AGC_ON,      				   // Run the automatic gain control algoritm
@@ -21,10 +22,13 @@ typedef enum {
 
 // State definitions
 typedef enum {
-    STATE_STANDBY,                      // Off state
-    STATE_MANUAL_OPERATION,             // Starting test state
-    STATE_AUTOMATIC_OPERATION,          // Normal operation state
-    STATE_ACQUIRING                		// Error stop state
+    STATE_STANDBY_MANUAL,               // Off state
+	STATE_STANDBY_AUTO,               // Off state
+    STATE_MANUAL_OPERATION,             // Manual Gain control
+    STATE_AUTOMATIC_OPERATION,          // AGC Algoritm gain control
+    STATE_ACQUIRING_AUTO,          		// Acquiring with gain set by AGC algoritm
+	STATE_ACQUIRING_MANUAL				// Acquiring with gain set by potentiometer
+
 } state_type;
 
 
