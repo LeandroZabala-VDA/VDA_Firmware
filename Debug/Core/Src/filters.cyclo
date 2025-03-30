@@ -1,3 +1,4 @@
-../Core/Src/filters.c:16:10:filtroMediaMovil	1
-../Core/Src/filters.c:43:10:iir_filter	8
-../Core/Src/filters.c:86:8:fir_filter	3
+../Core/Src/filters.c:11:6:FiltroMediaMovil_Init	4
+../Core/Src/filters.c:32:10:FiltroMediaMovil_Update	1
+../Core/Src/filters.c:55:10:iir_filter	8
+../Core/Src/filters.c:98:8:fir_filter	3

@@ -7,6 +7,8 @@
 
 #include "state_machine.h"
 #include "main.h"
+#include "agc.h"
+#include "filters.h"
 
 state_type current_state = STATE_STANDBY_MANUAL;
 
@@ -80,6 +82,7 @@ int8_t state_machine(event_type event, state_type* state) {
 	                    break;
 	                case EVENT_AGC_ON:
 	                    *state = STATE_AUTOMATIC_OPERATION;
+	                    AGC_Init();
 	                    break;
 	                case EVENT_AGC_OFF:
 	                	ret = -1;

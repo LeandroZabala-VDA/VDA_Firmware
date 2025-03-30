@@ -7,26 +7,33 @@
 
 #include "filters.h"
 
-// Definición de las variables
-double x_notch[FILTER_ORDER + 1] = {0};
-double y_notch[FILTER_ORDER + 1] = {0};
+// Inicializa un filtro de media móvil con tamaño de ventana específico
+void FiltroMediaMovil_Init(FiltroMediaMovil *filtro, uint8_t tamanoVentana) {
+    // Verificar que el tamaño de ventana no exceda el máximo
+    if (tamanoVentana > WINDOW_SIZE_MAX) {
+        tamanoVentana = WINDOW_SIZE_MAX;
+    }
 
+    // No permitir un tamaño de ventana de 0
+    if (tamanoVentana == 0) {
+        tamanoVentana = 1;
+    }
 
-// Aplica el filtro de media móvil sin necesidad de inicialización previa
-uint32_t filtroMediaMovil(uint16_t nuevaMuestra) {
-    static uint16_t ventana[WINDOW_SIZE] = {0};  // Inicializa en cero
-    static uint8_t indice = 0;
-    static uint32_t sumaVentana = 0;
+    for (int i = 0; i < WINDOW_SIZE_MAX; i++) {
+        filtro->ventana[i] = 0;
+    }
 
-    // Restar la muestra más antigua y sumar la nueva
-    sumaVentana = sumaVentana - ventana[indice] + nuevaMuestra;
-    ventana[indice] = nuevaMuestra;
+    filtro->indice = 0;
+    filtro->sumaVentana = 0;
+    filtro->tamanoVentana = tamanoVentana;
+}
 
-    // Mover el índice circular
-    indice = (indice + 1) % WINDOW_SIZE;
-
-    // Retornar el valor filtrado
-    return (uint32_t)(sumaVentana / WINDOW_SIZE);
+// Aplica el filtro de media móvil a una nueva muestra
+uint32_t FiltroMediaMovil_Update(FiltroMediaMovil *filtro, uint16_t nuevaMuestra) {
+    filtro->sumaVentana = filtro->sumaVentana - filtro->ventana[filtro->indice] + nuevaMuestra;
+    filtro->ventana[filtro->indice] = nuevaMuestra;
+    filtro->indice = (filtro->indice + 1) % filtro->tamanoVentana; // Usar el tamaño de ventana específico del filtro
+    return (uint32_t)(filtro->sumaVentana / filtro->tamanoVentana);
 }
 
 // -------------------------------------------------------------------------------------
@@ -39,6 +46,11 @@ uint32_t filtroMediaMovil(uint16_t nuevaMuestra) {
 //orden del nenominador
 //donde se guardan los x calculados
 // donde se guardan los y calculados
+
+// Definición de las variables
+double x_notch[FILTER_ORDER + 1] = {0};
+double y_notch[FILTER_ORDER + 1] = {0};
+
 
 uint16_t iir_filter(uint16_t input, const double *num, const double *den,
                          int num_order, int den_order, double *x, double *y) {

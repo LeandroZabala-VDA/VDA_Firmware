@@ -1,0 +1,3 @@
+../Core/Src/agc.c:16:6:AGC_Init	2
+../Core/Src/agc.c:25:6:AGC_AddSample	6
+../Core/Src/agc.c:56:10:AGC_GetMax	1

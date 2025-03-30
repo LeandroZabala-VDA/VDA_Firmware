@@ -35,7 +35,7 @@ Core/Src/serial_handler.o: ../Core/Src/serial_handler.c \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
- ../Core/Inc/main.h ../Core/Inc/state_machine.h
+ ../Core/Inc/filters.h ../Core/Inc/main.h ../Core/Inc/state_machine.h
 ../Core/Inc/serial_handler.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h:
@@ -73,5 +73,6 @@ Core/Src/serial_handler.o: ../Core/Src/serial_handler.c \
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h:
+../Core/Inc/filters.h:
 ../Core/Inc/main.h:
 ../Core/Inc/state_machine.h:

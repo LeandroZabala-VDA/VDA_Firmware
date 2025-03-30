@@ -1,3 +1,5 @@
+"./Core/Src/PID.o"
+"./Core/Src/agc.o"
 "./Core/Src/filters.o"
 "./Core/Src/main.o"
 "./Core/Src/serial_handler.o"

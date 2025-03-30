@@ -28,6 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
+#include "filters.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -36,7 +37,8 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+extern FiltroMediaMovil filtro_potentiometer;
+extern FiltroMediaMovil filtro_out_PID;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

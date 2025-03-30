@@ -1,3 +1,4 @@
-../Core/Src/serial_handler.c:17:13:process_command	16	static
-../Core/Src/serial_handler.c:33:6:SerialHandler_Init	16	static
-../Core/Src/serial_handler.c:39:6:HAL_UART_RxCpltCallback	16	static
+../Core/Src/serial_handler.c:16:13:process_command	16	static
+../Core/Src/serial_handler.c:32:6:SerialHandler_Init	16	static
+../Core/Src/serial_handler.c:37:6:SerialHandler_SendData	24	static
+../Core/Src/serial_handler.c:48:6:HAL_UART_RxCpltCallback	16	static
