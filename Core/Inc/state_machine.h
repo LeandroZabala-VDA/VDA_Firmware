@@ -23,7 +23,7 @@ typedef enum {
 // State definitions
 typedef enum {
     STATE_STANDBY_MANUAL,               // Off state
-	STATE_STANDBY_AUTO,               // Off state
+	STATE_STANDBY_AUTO,               	// Off state
     STATE_MANUAL_OPERATION,             // Manual Gain control
     STATE_AUTOMATIC_OPERATION,          // AGC Algoritm gain control
     STATE_ACQUIRING_AUTO,          		// Acquiring with gain set by AGC algoritm
